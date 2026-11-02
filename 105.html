@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BALANCE CRAFT：超界限體感平衡總署</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Gaming / Minecraft Voxel Vibe -->
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .font-pixel {
+            font-family: 'Press Start 2P', 'Silkscreen', cursive, sans-serif;
+        }
+        .font-silkscreen {
+            font-family: 'Silkscreen', cursive, sans-serif;
+        }
+
+        /* Minecraft Styled UI Borders & Gradients */
+        .mc-btn {
+            background: linear-gradient(180deg, #7bcc39 0%, #4a8522 100%);
+            border: 3px solid #284710;
+            box-shadow: inset 2px 2px 0px #a4e662, inset -2px -2px 0px #213b0c, 0 6px 0 #122106;
+            text-shadow: 2px 2px 0 #1c3609;
+            transition: all 0.1s ease;
+        }
+        .mc-btn:active {
+            transform: translateY(4px);
+            box-shadow: inset 2px 2px 0px #213b0c, inset -2px -2px 0px #a4e662, 0 2px 0 #122106;
+        }
+
+        .mc-btn-orange {
+            background: linear-gradient(180deg, #ff9d2e 0%, #c45b00 100%);
+            border: 3px solid #6e3200;
+            box-shadow: inset 2px 2px 0px #ffc17a, inset -2px -2px 0px #522500, 0 6px 0 #361800;
+            text-shadow: 2px 2px 0 #421e00;
+        }
+
+        .mc-card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 4px solid #475569;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 10px 25px rgba(0,0,0,0.5);
+            border-image: linear-gradient(to bottom, #64748b, #334155) 1;
+        }
+
+        /* Hero Background Overlay */
+        .bg-voxel-pattern {
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 60%),
+                linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95));
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        /* Canvas Container */
+        #gameCanvasContainer {
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 4 / 5;
+            position: relative;
+            margin: 0 auto;
+            border: 4px solid #7bcc39;
+            box-shadow: 0 0 30px rgba(123, 204, 57, 0.3), inset 0 0 20px rgba(0,0,0,0.8);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #70b5ff; /* Sky blue */
+        }
+
+        canvas#balanceCanvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+    </style>
+</head>
+<body class="selection:bg-green-500 selection:text-black">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 bg-slate-950/90 border-b-4 border-slate-700 backdrop-blur-md px-4 py-3">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="scrollToSection('hero')">
+                <div class="w-9 h-9 bg-green-600 border-2 border-green-300 flex items-center justify-center font-pixel text-yellow-300 text-lg shadow">
+                    🧱
+                </div>
+                <div>
+                    <h1 class="font-pixel text-xs sm:text-sm text-yellow-400 tracking-wider">BALANCE CRAFT</h1>
+                    <p class="text-[10px] text-emerald-400 font-mono">體感與重力訓練總署 v4.0</p>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slate-300 font-silkscreen">
+                <button onclick="scrollToSection('hero')" class="hover:text-yellow-400 transition">【主頁】</button>
+                <button onclick="scrollToSection('arena')" class="hover:text-yellow-400 transition">【競技場】</button>
+                <button onclick="scrollToSection('journey')" class="hover:text-yellow-400 transition">【演進歷程】</button>
+                <button onclick="scrollToSection('ranks')" class="hover:text-yellow-400 transition">【等級評估】</button>
+            </nav>
+
+            <button onclick="scrollToSection('arena')" class="mc-btn px-4 py-2 text-xs font-bold text-white uppercase rounded">
+                🎮 開始體驗
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="relative min-h-[90vh] flex items-center justify-center py-12 px-4 bg-voxel-pattern border-b-4 border-slate-800">
+        <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <!-- Left Column: Story & Vision -->
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <div class="inline-block px-3 py-1 bg-green-950 border border-green-500/50 rounded text-emerald-400 text-xs font-mono tracking-wider">
+                    ⚡ 運動競技 x 體感神經肌肉反應
+                </div>
+                
+                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                    從本體感覺訓練到<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-green-400 to-emerald-300 font-pixel text-2xl sm:text-4xl">
+                        BALANCE CRAFT
+                    </span>
+                    <br>體感遊戲新紀元！
+                </h1>
+
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    結合**前庭系統訓練**、**動態重心控制**與**雙重任務反應（Dual-Tasking）**。從最初的單腳靜態平衡與鐘點羅盤，跨越重力物理連線對戰，最終打造這款讓你在歡樂方塊疊疊樂中淬鍊賽場絕佳平衡感與反應力的體感遊戲！
+                </p>
+
+                <div class="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
+                    <button onclick="scrollToSection('arena')" class="mc-btn px-6 py-3.5 text-sm font-bold text-white font-pixel">
+                        🕹️ 進入平衡競技場
+                    </button>
+                    <button onclick="scrollToSection('journey')" class="mc-btn-orange px-6 py-3.5 text-sm font-bold text-white font-pixel">
+                        📜 查看研發歷程
+                    </button>
+                </div>
+
+                <!-- Stats Badges -->
+                <div class="grid grid-cols-3 gap-3 pt-4 border-t border-slate-800 text-center">
+                    <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-700">
+                        <div class="text-yellow-400 font-pixel text-base sm:text-xl">4 大</div>
+                        <div class="text-[11px] text-slate-400 mt-1">演進階段</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-700">
+                        <div class="text-emerald-400 font-pixel text-base sm:text-xl">100%</div>
+                        <div class="text-[11px] text-slate-400 mt-1">物理重力模擬</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-700">
+                        <div class="text-cyan-400 font-pixel text-base sm:text-xl">SSS 級</div>
+                        <div class="text-[11px] text-slate-400 mt-1">賽場評價體系</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Balance Craft Image Art Showcase -->
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="relative w-full max-w-md group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-yellow-500 to-green-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+                    <div class="relative mc-card p-3 rounded-2xl bg-slate-900">
+                        <!-- Image Container using the user provided image -->
+                        <img src="10508.png" alt="BALANCE CRAFT Cover Art" class="w-full h-auto rounded-lg shadow-2xl border-2 border-slate-700 hover:scale-[1.02] transition duration-300 object-cover" onerror="this.src='https://placehold.co/600x345/1e293b/7bcc39?text=BALANCE+CRAFT'">
+                        <div class="mt-3 text-center">
+                            <span class="font-pixel text-[11px] text-yellow-300">BALANCE CRAFT 官方主視覺</span>
+                            <p class="text-[10px] text-slate-400 mt-0.5">方塊物理倒單擺平衡模型 (Inverted Pendulum Physics)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION: PLAYABLE GAME ARENA -->
+    <section id="arena" class="py-16 px-4 bg-slate-950 border-b-4 border-slate-800 relative">
+        <div class="max-w-4xl mx-auto space-y-6">
+            
+            <div class="text-center space-y-2">
+                <span class="px-3 py-1 bg-yellow-950 text-yellow-400 border border-yellow-700 text-xs font-pixel rounded-full inline-block">
+                    LIVE PLAYABLE DEMO
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-black text-white font-pixel">
+                    《BALANCE CRAFT》方塊體感平衡塔
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
+                    使用 <span class="text-yellow-400 font-bold">⬅️ / ➡️ 方向鍵</span> 或 <span class="text-yellow-400 font-bold">按鈕控制</span> Steve 左右移動！接住天空掉落的方塊並維持高塔傾斜度平衡，一旦傾斜超過 65 度倒塌即宣告結算！
+                </p>
+            </div>
+
+            <!-- Game Arena Card -->
+            <div class="mc-card p-4 sm:p-6 rounded-2xl max-w-xl mx-auto bg-slate-900 space-y-4">
+                
+                <!-- Stage / Phase Selector Header -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-pixel text-yellow-400">🗺️ 關卡選擇（演化歷程）</span>
+                        <span id="phaseTitle" class="text-xs font-bold text-emerald-400 font-mono">Phase 4: BALANCE CRAFT 終極塔</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px] font-bold">
+                        <button id="btnPhase1" onclick="switchPhase(1)" class="py-2 px-1 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">
+                            1. 靜態雙重任務
+                        </button>
+                        <button id="btnPhase2" onclick="switchPhase(2)" class="py-2 px-1 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">
+                            2. 星核重力保衛
+                        </button>
+                        <button id="btnPhase3" onclick="switchPhase(3)" class="py-2 px-1 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">
+                            3. 量子矩陣躍遷
+                        </button>
+                        <button id="btnPhase4" onclick="switchPhase(4)" class="py-2 px-1 rounded bg-green-700 border border-green-500 text-white shadow transition">
+                            4. BALANCE CRAFT
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HUD Header -->
+                <div class="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800 font-pixel text-xs">
+                    <div>
+                        <span class="text-slate-400 text-[10px] block" id="hudLabelScore">SCORE</span>
+                        <span id="gameScore" class="text-yellow-400 text-base">0</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-slate-400 text-[10px] block" id="hudLabelSecondary">TILT ANGLE</span>
+                        <span id="gameAngle" class="text-emerald-400 text-base">0.0°</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-400 text-[10px] block" id="hudLabelExtra">ITEMS</span>
+                        <span id="gameBlocks" class="text-cyan-400 text-base">1</span>
+                    </div>
+                </div>
+
+                <!-- Game Canvas -->
+                <div id="gameCanvasContainer" class="relative">
+                    <canvas id="balanceCanvas" width="500" height="625"></canvas>
+                    
+                    <!-- Phase 1 Dual-Task Clap Prompt Button Overlay -->
+                    <div id="clapOverlay" class="hidden absolute inset-x-0 bottom-16 flex justify-center z-20">
+                        <button id="btnClapAction" onclick="handleClapAction()" class="mc-btn-orange px-8 py-4 text-white font-pixel text-sm rounded-xl shadow-2xl animate-bounce">
+                            👏 逢 3 的倍數！點擊拍手！
+                        </button>
+                    </div>
+
+                    <!-- Opponent Live HUD Overlay (Multiplayer Mode) -->
+                    <div id="opponentHud" class="hidden absolute top-3 right-3 bg-slate-900/90 border border-amber-500/80 p-2.5 rounded-lg text-xs font-mono shadow-xl backdrop-blur-sm space-y-1 z-10 w-40">
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-1">
+                            <span class="text-amber-400 font-pixel text-[10px]">⚔️ 對手即時</span>
+                            <span id="oppStatusBadge" class="text-[9px] bg-green-900 text-green-300 px-1.5 py-0.5 rounded">連線中</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">分數:</span>
+                            <span id="oppScore" class="text-yellow-300 font-bold">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">角度:</span>
+                            <span id="oppAngle" class="text-emerald-300 font-bold">0.0°</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">方塊:</span>
+                            <span id="oppBlocks" class="text-cyan-300 font-bold">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- On-Screen Controls for Mobile & Accessibility -->
+                <div class="grid grid-cols-3 gap-3 pt-2">
+                    <button id="btnMoveLeft" class="mc-btn-orange py-3.5 text-white font-bold text-sm rounded flex items-center justify-center space-x-1 select-none touch-none active:scale-95 transition">
+                        <span>⬅️</span> <span>按住左移</span>
+                    </button>
+                    <button id="btnRestart" onclick="initBalanceGame()" class="mc-btn py-3.5 text-white font-pixel text-xs rounded flex items-center justify-center select-none active:scale-95 transition">
+                        🔄 重新開始
+                    </button>
+                    <button id="btnMoveRight" class="mc-btn-orange py-3.5 text-white font-bold text-sm rounded flex items-center justify-center space-x-1 select-none touch-none active:scale-95 transition">
+                        <span>按住右移</span> <span>➡️</span>
+                    </button>
+                </div>
+
+                <!-- Mode & Multiplayer Lobby Panel -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 font-mono mt-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                        <span class="text-xs font-pixel text-yellow-400">🎮 遊戲模式選擇</span>
+                        <div class="flex space-x-2 text-xs">
+                            <button id="btnModeSolo" onclick="switchMode('solo')" class="px-3 py-1.5 bg-green-700 text-white font-bold rounded border border-green-500 shadow">
+                                👤 單人模式
+                            </button>
+                            <button id="btnModeMP" onclick="switchMode('mp')" class="px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded border border-slate-700 hover:bg-slate-700">
+                                ⚔️ 線上對戰
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Multiplayer Room UI -->
+                    <div id="mpLobbyPanel" class="hidden space-y-3 pt-1">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-2">
+                                <span class="text-xs font-bold text-emerald-400 block">🏠 建立對戰房間</span>
+                                <button onclick="createRoom()" class="mc-btn w-full py-2 text-xs font-bold text-white rounded">
+                                    ➕ 創建對戰房 (產生房號)
+                                </button>
+                            </div>
+                            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 space-y-2">
+                                <span class="text-xs font-bold text-amber-400 block">🔑 輸入 6 位數房號加入</span>
+                                <div class="flex space-x-2">
+                                    <input id="inputRoomCode" type="text" maxlength="6" placeholder="例如 123456" class="w-full bg-slate-950 border border-slate-700 px-3 py-1.5 rounded text-xs text-white focus:outline-none focus:border-amber-400 font-mono">
+                                    <button onclick="joinRoom()" class="mc-btn-orange px-3 py-1.5 text-xs font-bold text-white rounded whitespace-nowrap">
+                                        加入對戰
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Room Status Banner -->
+                        <div id="activeRoomInfo" class="hidden bg-amber-950/60 border border-amber-600/60 p-3 rounded-lg flex flex-wrap justify-between items-center text-xs">
+                            <div>
+                                <span class="text-slate-400">對戰房號：</span>
+                                <span id="displayRoomCode" class="font-pixel text-yellow-300 text-sm">------</span>
+                                <span id="displayPlayerRole" class="ml-2 text-[10px] bg-amber-900 text-amber-200 px-2 py-0.5 rounded">---</span>
+                            </div>
+                            <div id="roomStatusText" class="text-emerald-400 font-bold">等待對手加入中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instruction Note -->
+                <div class="text-center text-[11px] text-slate-400 font-mono bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                    💡 提示：按住 <span class="text-yellow-400 font-bold">⬅️ / ➡️ 按鈕</span>、鍵盤 <span class="text-yellow-400 font-bold">A / D / 方向鍵</span>，或在遊戲畫面上 <span class="text-yellow-400 font-bold">直接滑動/拖曳</span> 即可精準控制 Steve 移動與修正平衡！
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION: PROJECT JOURNEY TIMELINE -->
+    <section id="journey" class="py-16 px-4 bg-slate-900 border-b-4 border-slate-800">
+        <div class="max-w-5xl mx-auto space-y-12">
+            
+            <div class="text-center space-y-3">
+                <span class="text-xs font-pixel text-emerald-400 tracking-widest uppercase">THE EVOLUTION JOURNEY</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">
+                    體感平衡遊戲的<span class="text-yellow-400">研發演進歷程</span>
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
+                    從初期的單腳本體感覺訓練，到線上的物理重力對戰，最終融入 Minecraft 方塊風《BALANCE CRAFT》。
+                </p>
+            </div>
+
+            <!-- Vertical Timeline -->
+            <div class="relative border-l-4 border-emerald-500/40 ml-4 sm:ml-32 space-y-10">
+                
+                <!-- PHASE 1 -->
+                <div class="relative pl-6 sm:pl-10">
+                    <!-- Marker -->
+                    <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-yellow-400 border-4 border-slate-900 shadow"></div>
+                    <div class="sm:absolute sm:-left-32 sm:top-1 font-pixel text-xs text-yellow-400 w-24 text-right hidden sm:block">PHASE 1</div>
+                    
+                    <div class="mc-card p-5 rounded-2xl bg-slate-950 space-y-3">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+                                <span>🎯 本體感覺與三關體感訓練起點</span>
+                            </h3>
+                            <span class="px-2.5 py-0.5 bg-yellow-950 text-yellow-400 text-[10px] font-mono rounded border border-yellow-700">動靜態平衡</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            設計三大針對性訓練關卡，結合前庭覺與雙重任務（Dual-tasking）：
+                        </p>
+                        <ul class="text-xs text-slate-400 space-y-1.5 pl-4 list-disc font-mono">
+                            <li><strong class="text-yellow-300">靜態鎖定：</strong>單腳 90 度支撐 + 拋接網球 / 逢 3 倍數拍手干擾。</li>
+                            <li><strong class="text-yellow-300">鐘點羅盤：</strong>單腳屈膝點擊四方 (12/3/6/9點) + 反方向視線轉頭鎖定。</li>
+                            <li><strong class="text-yellow-300">瞬時突襲：</strong>雙眼閉合 + 0.5 秒隨機聽覺拍手張眼極速報數。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- PHASE 2 -->
+                <div class="relative pl-6 sm:pl-10">
+                    <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-cyan-400 border-4 border-slate-900 shadow"></div>
+                    <div class="sm:absolute sm:-left-32 sm:top-1 font-pixel text-xs text-cyan-400 w-24 text-right hidden sm:block">PHASE 2</div>
+                    
+                    <div class="mc-card p-5 rounded-2xl bg-slate-950 space-y-3">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+                                <span>🌌 重力物理與線上多人連線對戰</span>
+                            </h3>
+                            <span class="px-2.5 py-0.5 bg-cyan-950 text-cyan-400 text-[10px] font-mono rounded border border-cyan-700">即時連線 1v1</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            導入 2D 向量重力物理場與多人線上同步對戰機制（WebSocket/Lobby 房號系統）：
+                        </p>
+                        <ul class="text-xs text-slate-400 space-y-1.5 pl-4 list-disc font-mono">
+                            <li><strong class="text-cyan-300">星核對對決 (1v1 Clash)：</strong>雙方艦艇釋放引力脈衝拉拽中央星核至敵方邊界。</li>
+                            <li><strong class="text-cyan-300">雙人協同保衛：</strong>兩人共同編織重力防禦網，彈開太空站反物質隕石。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- PHASE 3 -->
+                <div class="relative pl-6 sm:pl-10">
+                    <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-pink-400 border-4 border-slate-900 shadow"></div>
+                    <div class="sm:absolute sm:-left-32 sm:top-1 font-pixel text-xs text-pink-400 w-24 text-right hidden sm:block">PHASE 3</div>
+                    
+                    <div class="mc-card p-5 rounded-2xl bg-slate-950 space-y-3">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+                                <span>🔲 超界限平方：量子矩陣賽博朋克</span>
+                            </h3>
+                            <span class="px-2.5 py-0.5 bg-pink-950 text-pink-400 text-[10px] font-mono rounded border border-pink-700">Arcade 幾何</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            打造全方位的霓虹 Arcade 矩陣幾何遊戲體驗：
+                        </p>
+                        <ul class="text-xs text-slate-400 space-y-1.5 pl-4 list-disc font-mono">
+                            <li><strong class="text-pink-300">矩陣躍遷 (Leap)：</strong>8x8 塌陷網格避障與晶體搶收。</li>
+                            <li><strong class="text-pink-300">平方脈衝 (Burst)：</strong>同色區塊連鎖爆破與重力下落 Combo。</li>
+                            <li><strong class="text-pink-300">四方防衛 (Defense)：</strong>360 度向量脈衝格擋。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- PHASE 4 -->
+                <div class="relative pl-6 sm:pl-10">
+                    <div class="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-green-400 border-4 border-slate-900 shadow"></div>
+                    <div class="sm:absolute sm:-left-32 sm:top-1 font-pixel text-xs text-green-400 w-24 text-right hidden sm:block">PHASE 4</div>
+                    
+                    <div class="mc-card p-5 rounded-2xl bg-slate-950 space-y-3 border-green-500/50">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-bold text-yellow-300 flex items-center space-x-2">
+                                <span>🧱 終極殿堂：《BALANCE CRAFT》方塊體感大成</span>
+                            </h3>
+                            <span class="px-2.5 py-0.5 bg-green-950 text-green-400 text-[10px] font-mono rounded border border-green-700">現正上線</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            結合經典像素方塊美學與實時倒單擺物理學（Inverted Pendulum Physics），將體感姿態修正、微感調整與緊張刺激的疊疊樂遊戲完美融合！
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION: RANKS & EVALUATION -->
+    <section id="ranks" class="py-16 px-4 bg-slate-950 border-b-4 border-slate-800">
+        <div class="max-w-5xl mx-auto space-y-8">
+            
+            <div class="text-center space-y-2">
+                <span class="text-xs font-pixel text-yellow-400 tracking-widest uppercase">STABILITY SCORE INDEX</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white">
+                    賽場競技平衡能力評估表
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400">
+                    根據網頁遊戲得分與實際實體關卡測試表現的綜合等級評定。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Rank SSS -->
+                <div class="mc-card p-4 rounded-xl bg-slate-900 border-yellow-500/60 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-pixel text-lg text-yellow-400">SSS 級</span>
+                        <span class="text-[10px] bg-yellow-950 text-yellow-300 border border-yellow-700 px-2 py-0.5 rounded font-mono">180 - 200 分</span>
+                    </div>
+                    <h4 class="text-sm font-bold text-white">重力掌控者</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        前庭覺與前饋神經肌肉反應極佳。在激烈肢體對抗或快速變向中，能瞬時修正身體重心。
+                    </p>
+                </div>
+
+                <!-- Rank S -->
+                <div class="mc-card p-4 rounded-xl bg-slate-900 border-emerald-500/60 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-pixel text-lg text-emerald-400">S 級</span>
+                        <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-700 px-2 py-0.5 rounded font-mono">140 - 179 分</span>
+                    </div>
+                    <h4 class="text-sm font-bold text-white">領域專家</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        具備優異的靜態與動態控制力，在多重干擾或高壓視覺挑戰下僅有極微幅的晃動。
+                    </p>
+                </div>
+
+                <!-- Rank A -->
+                <div class="mc-card p-4 rounded-xl bg-slate-900 border-cyan-500/60 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-pixel text-lg text-cyan-400">A 級</span>
+                        <span class="text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-700 px-2 py-0.5 rounded font-mono">100 - 139 分</span>
+                    </div>
+                    <h4 class="text-sm font-bold text-white">穩定戰士</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        基礎核心穩定度良好，但在快速視野移轉（羅盤）或閉眼突襲時微幅晃動較為明顯。
+                    </p>
+                </div>
+
+                <!-- Rank B -->
+                <div class="mc-card p-4 rounded-xl bg-slate-900 border-slate-600 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-pixel text-lg text-slate-400">B 級</span>
+                        <span class="text-[10px] bg-slate-800 text-slate-300 border border-slate-600 px-2 py-0.5 rounded font-mono">100 分以下</span>
+                    </div>
+                    <h4 class="text-sm font-bold text-white">體感修練者</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        本體感覺與視覺依賴性較強，建議先拉長單腳靜態支撐訓練，再進入動態疊疊樂與關卡挑戰。
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 py-8 px-4 border-t-4 border-slate-800 text-center">
+        <div class="max-w-4xl mx-auto space-y-3">
+            <div class="font-pixel text-sm text-yellow-400">BALANCE CRAFT • HYPER-SQUARE LABS</div>
+            <p class="text-xs text-slate-500">
+                結合運動科學、本體感覺訓練與高互動性體感遊戲化設計
+            </p>
+            <div class="text-[10px] text-slate-600 font-mono">
+                © 2026 BALANCE CRAFT PROJECT. ALL RIGHTS RESERVED.
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE GAME LOGIC: BALANCE CRAFT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration & Initialization
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'balance-craft-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' && __firebase_config ? JSON.parse(__firebase_config) : null;
+
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        let currentRoomId = null;
+        let playerRole = null; // 'p1' or 'p2'
+        let unsubscribeRoom = null;
+        let lastSyncTime = 0;
+        let currentMode = 'solo'; // 'solo' or 'mp'
+        let currentPhase = 4; // 1, 2, 3, 4
+
+        // Smooth scroll helper exposed to window
+        window.scrollToSection = function(sectionId) {
+            const el = document.getElementById(sectionId);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // Window level phase switcher
+        window.switchPhase = function(phaseNum) {
+            currentPhase = phaseNum;
+            const btnP1 = document.getElementById('btnPhase1');
+            const btnP2 = document.getElementById('btnPhase2');
+            const btnP3 = document.getElementById('btnPhase3');
+            const btnP4 = document.getElementById('btnPhase4');
+            const pTitle = document.getElementById('phaseTitle');
+
+            const unactiveClass = "py-2 px-1 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition";
+            const activeClass = "py-2 px-1 rounded bg-green-700 border border-green-500 text-white shadow transition";
+
+            if (btnP1) btnP1.className = phaseNum === 1 ? activeClass : unactiveClass;
+            if (btnP2) btnP2.className = phaseNum === 2 ? activeClass : unactiveClass;
+            if (btnP3) btnP3.className = phaseNum === 3 ? activeClass : unactiveClass;
+            if (btnP4) btnP4.className = phaseNum === 4 ? activeClass : unactiveClass;
+
+            const titles = {
+                1: "Phase 1: 靜態鎖定 + 雙重任務",
+                2: "Phase 2: 星核重力防禦戰",
+                3: "Phase 3: 量子矩陣躍遷",
+                4: "Phase 4: BALANCE CRAFT 終極塔"
+            };
+            if (pTitle) pTitle.innerText = titles[phaseNum];
+
+            // Reset and start selected phase game
+            initBalanceGame();
+        };
+
+        // Mode Switcher exposed to window
+        window.switchMode = function(mode) {
+            currentMode = mode;
+            const btnSolo = document.getElementById('btnModeSolo');
+            const btnMP = document.getElementById('btnModeMP');
+            const lobby = document.getElementById('mpLobbyPanel');
+            const oppHud = document.getElementById('opponentHud');
+
+            if (mode === 'solo') {
+                if (btnSolo) btnSolo.className = "px-3 py-1.5 bg-green-700 text-white font-bold rounded border border-green-500 shadow";
+                if (btnMP) btnMP.className = "px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded border border-slate-700 hover:bg-slate-700";
+                if (lobby) lobby.classList.add('hidden');
+                if (oppHud) oppHud.classList.add('hidden');
+            } else {
+                if (btnSolo) btnSolo.className = "px-3 py-1.5 bg-slate-800 text-slate-300 font-bold rounded border border-slate-700 hover:bg-slate-700";
+                if (btnMP) btnMP.className = "px-3 py-1.5 bg-green-700 text-white font-bold rounded border border-green-500 shadow";
+                if (lobby) lobby.classList.remove('hidden');
+            }
+        };
+
+        // Room creation & joining exposed to window
+        window.createRoom = async function() {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            const activeRoomInfo = document.getElementById('activeRoomInfo');
+            const displayCode = document.getElementById('displayRoomCode');
+            const displayRole = document.getElementById('displayPlayerRole');
+            const statusText = document.getElementById('roomStatusText');
+            const oppHud = document.getElementById('opponentHud');
+
+            if (displayCode) displayCode.innerText = code;
+            if (displayRole) displayRole.innerText = '房主 (P1)';
+            if (statusText) statusText.innerText = '等待對手加入中...';
+            if (activeRoomInfo) activeRoomInfo.classList.remove('hidden');
+            if (oppHud) oppHud.classList.remove('hidden');
+
+            currentRoomId = code;
+            playerRole = 'p1';
+        };
+
+        window.joinRoom = async function() {
+            const input = document.getElementById('inputRoomCode');
+            const code = input ? input.value.trim() : '';
+            if (code.length !== 6) {
+                alert('請輸入 6 位數房間號碼');
+                return;
+            }
+            const activeRoomInfo = document.getElementById('activeRoomInfo');
+            const displayCode = document.getElementById('displayRoomCode');
+            const displayRole = document.getElementById('displayPlayerRole');
+            const statusText = document.getElementById('roomStatusText');
+            const oppHud = document.getElementById('opponentHud');
+
+            if (displayCode) displayCode.innerText = code;
+            if (displayRole) displayRole.innerText = '挑戰者 (P2)';
+            if (statusText) statusText.innerText = '已成功連線對戰！';
+            if (activeRoomInfo) activeRoomInfo.classList.remove('hidden');
+            if (oppHud) oppHud.classList.remove('hidden');
+
+            currentRoomId = code;
+            playerRole = 'p2';
+        };
+
+        // Audio helper dummy fallback
+        function playCatchSound(isExplosive) {
+            try {
+                const ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctxAudio.createOscillator();
+                const gain = ctxAudio.createGain();
+                osc.type = isExplosive ? 'sawtooth' : 'sine';
+                osc.frequency.setValueAtTime(isExplosive ? 120 : 440, ctxAudio.currentTime);
+                gain.gain.setValueAtTime(0.1, ctxAudio.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+                osc.start();
+                osc.stop(ctxAudio.currentTime + 0.15);
+            } catch (e) {}
+        }
+
+        // --- GAME ENGINE & STATE MULTI-PHASE EXTENSIONS ---
+        let canvas, ctx;
+        let gameLoopReq = null;
+
+        // Block types
+        const BLOCK_TYPES = [
+            { name: 'Grass', color: '#7bcc39', score: 10, explosive: false },
+            { name: 'Gold', color: '#facc15', score: 25, explosive: false },
+            { name: 'TNT', color: '#ef4444', score: 50, explosive: true },
+            { name: 'Diamond', color: '#38bdf8', score: 100, explosive: false }
+        ];
+
+        // Multi-phase State
+        let gameState = {
+            running: false,
+            started: false,
+            score: 0,
+            steveX: 250,
+            steveVx: 0,
+            poleAngle: 0.02,
+            poleAngVel: 0,
+            blocks: [],
+            fallingBlocks: [],
+            lastSpawn: 0,
+            // Phase 1 specific
+            mathNum: 0,
+            mathIsMultiple3: false,
+            mathNextPromptTime: 0,
+            clapSuccess: false,
+            // Phase 2 specific (Gravity Meteors)
+            meteors: [],
+            health: 100,
+            // Phase 3 specific (8x8 Quantum Grid)
+            gridPlayerX: 3,
+            gridPlayerY: 3,
+            collapsingTiles: [],
+            quantumCubes: []
+        };
+
+        let isLeftPressed = false;
+        let isRightPressed = false;
+        let isDragging = false;
+        let targetSteveX = 250;
+
+        const CANVAS_WIDTH = 500;
+        const CANVAS_HEIGHT = 625;
+        const GRAVITY = 0.00035;
+
+        window.handleClapAction = function() {
+            if (currentPhase !== 1 || !gameState.running) return;
+            const clapOverlay = document.getElementById('clapOverlay');
+            if (gameState.mathIsMultiple3 && !gameState.clapSuccess) {
+                gameState.clapSuccess = true;
+                gameState.score += 30;
+                playCatchSound(false);
+                if (clapOverlay) clapOverlay.classList.add('hidden');
+            } else {
+                gameState.score = Math.max(0, gameState.score - 15);
+                gameState.poleAngVel += (Math.random() > 0.5 ? 1 : -1) * 0.03;
+                playCatchSound(true);
+            }
+        };
+
+        // Core init function exposed to global scope
+        window.initBalanceGame = function initBalanceGame() {
+            canvas = document.getElementById('balanceCanvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+
+            const clapOverlay = document.getElementById('clapOverlay');
+            if (clapOverlay) clapOverlay.classList.add('hidden');
+
+            gameState.running = true;
+            gameState.started = true;
+            gameState.score = 0;
+            gameState.steveX = CANVAS_WIDTH / 2;
+            targetSteveX = CANVAS_WIDTH / 2;
+            gameState.steveVx = 0;
+            gameState.poleAngle = (Math.random() - 0.5) * 0.04;
+            gameState.poleAngVel = 0;
+            gameState.fallingBlocks = [];
+            gameState.blocks = [BLOCK_TYPES[0], BLOCK_TYPES[1], BLOCK_TYPES[2]];
+            gameState.lastSpawn = Date.now();
+
+            // Phase 1 resets
+            gameState.mathNum = 0;
+            gameState.mathIsMultiple3 = false;
+            gameState.mathNextPromptTime = Date.now() + 2000;
+            gameState.clapSuccess = false;
+
+            // Phase 2 resets
+            gameState.meteors = [];
+            gameState.health = 100;
+
+            // Phase 3 resets
+            gameState.gridPlayerX = 3;
+            gameState.gridPlayerY = 6;
+            gameState.collapsingTiles = [];
+            gameState.quantumCubes = [];
+
+            if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
+            runGameLoop();
+        };
+
+        function setupControls() {
+            const btnLeft = document.getElementById('btnMoveLeft');
+            const btnRight = document.getElementById('btnMoveRight');
+
+            if (btnLeft) {
+                const startLeft = (e) => { e.preventDefault(); isLeftPressed = true; };
+                const stopLeft = (e) => { e.preventDefault(); isLeftPressed = false; };
+                btnLeft.addEventListener('mousedown', startLeft);
+                btnLeft.addEventListener('mouseup', stopLeft);
+                btnLeft.addEventListener('touchstart', startLeft);
+                btnLeft.addEventListener('touchend', stopLeft);
+            }
+
+            if (btnRight) {
+                const startRight = (e) => { e.preventDefault(); isRightPressed = true; };
+                const stopRight = (e) => { e.preventDefault(); isRightPressed = false; };
+                btnRight.addEventListener('mousedown', startRight);
+                btnRight.addEventListener('mouseup', stopRight);
+                btnRight.addEventListener('touchstart', startRight);
+                btnRight.addEventListener('touchend', stopRight);
+            }
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') isLeftPressed = true;
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') isRightPressed = true;
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') isLeftPressed = false;
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') isRightPressed = false;
+            });
+
+            const cvs = document.getElementById('balanceCanvas');
+            if (cvs) {
+                const handlePointer = (clientX) => {
+                    const rect = cvs.getBoundingClientRect();
+                    const scaleX = CANVAS_WIDTH / rect.width;
+                    targetSteveX = (clientX - rect.left) * scaleX;
+                };
+
+                cvs.addEventListener('mousedown', (e) => { isDragging = true; handlePointer(e.clientX); });
+                cvs.addEventListener('mousemove', (e) => { if (isDragging) handlePointer(e.clientX); });
+                window.addEventListener('mouseup', () => { isDragging = false; });
+
+                cvs.addEventListener('touchstart', (e) => {
+                    if (e.touches.length > 0) { isDragging = true; handlePointer(e.touches[0].clientX); }
+                }, { passive: true });
+                cvs.addEventListener('touchmove', (e) => {
+                    if (isDragging && e.touches.length > 0) handlePointer(e.touches[0].clientX);
+                }, { passive: true });
+                window.addEventListener('touchend', () => { isDragging = false; });
+            }
+        }
+
+        function syncStateToRoom() {
+            // Room sync logic hook
+        }
+
+        function gameOver() {
+            gameState.running = false;
+            playCatchSound(true);
+            alert(`GAME OVER! 最終得分: ${gameState.score}`);
+        }
+
+        function spawnFallingBlock() {
+            const type = BLOCK_TYPES[Math.floor(Math.random() * BLOCK_TYPES.length)];
+            gameState.fallingBlocks.push({
+                x: Math.random() * (CANVAS_WIDTH - 60) + 30,
+                y: -30,
+                speed: 1.5 + Math.random() * 2,
+                type: type
+            });
+        }
+
+        function getPoleTopPos() {
+            const pivotX = gameState.steveX;
+            const pivotY = CANVAS_HEIGHT - 110;
+            const totalLen = 40 + gameState.blocks.length * 28;
+            return {
+                x: pivotX + Math.sin(gameState.poleAngle) * totalLen,
+                y: pivotY - Math.cos(gameState.poleAngle) * totalLen
+            };
+        }
+
+        function drawStartScreen() {
+            if (!ctx) return;
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.fillStyle = '#facc15';
+            ctx.font = '20px "Press Start 2P", cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('BALANCE CRAFT', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20);
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '14px "Noto Sans TC", sans-serif';
+            ctx.fillText('點擊「重新開始」開始體驗遊戲', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
+        }
+
+        function drawSteve(x, y) {
+            ctx.fillStyle = '#0284c7';
+            ctx.fillRect(x - 12, y - 50, 24, 30);
+            ctx.fillStyle = '#3730a3';
+            ctx.fillRect(x - 10, y - 20, 20, 20);
+            ctx.fillStyle = '#fbcfe8';
+            ctx.fillRect(x - 10, y - 70, 20, 20);
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(x - 10, y - 70, 20, 6);
+        }
+
+        function drawBlock(x, y, type, angle, size) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.fillStyle = type.color;
+            ctx.fillRect(-size / 2, -size / 2, size, size);
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(-size / 2, -size / 2, size, size);
+            ctx.restore();
+        }
+
+        function runGameLoop() {
+            if (!gameState.running) {
+                if (!gameState.started) drawStartScreen();
+                return;
+            }
+
+            if (currentPhase === 1) updatePhase1();
+            else if (currentPhase === 2) updatePhase2();
+            else if (currentPhase === 3) updatePhase3();
+            else updatePhase4();
+
+            drawCanvas();
+            updateHUDLabels();
+
+            gameLoopReq = requestAnimationFrame(runGameLoop);
+        }
+
+        function updateHUDLabels() {
+            const scoreEl = document.getElementById('gameScore');
+            const angleEl = document.getElementById('gameAngle');
+            const blocksEl = document.getElementById('gameBlocks');
+            const lScore = document.getElementById('hudLabelScore');
+            const lSecondary = document.getElementById('hudLabelSecondary');
+            const lExtra = document.getElementById('hudLabelExtra');
+
+            if (scoreEl) scoreEl.innerText = gameState.score;
+
+            if (currentPhase === 1) {
+                if (lScore) lScore.innerText = "SCORE";
+                if (lSecondary) lSecondary.innerText = "NUMBER CUE";
+                if (lExtra) lExtra.innerText = "TILT";
+                if (angleEl) angleEl.innerText = gameState.mathNum > 0 ? gameState.mathNum : '--';
+                if (blocksEl) blocksEl.innerText = (gameState.poleAngle * (180 / Math.PI)).toFixed(1) + '°';
+            } else if (currentPhase === 2) {
+                if (lScore) lScore.innerText = "DEFENSE SCORE";
+                if (lSecondary) lSecondary.innerText = "STATION HP";
+                if (lExtra) lExtra.innerText = "METEORS";
+                if (angleEl) angleEl.innerText = gameState.health + '%';
+                if (blocksEl) blocksEl.innerText = gameState.meteors.length;
+            } else if (currentPhase === 3) {
+                if (lScore) lScore.innerText = "QUANTUM CUBES";
+                if (lSecondary) lSecondary.innerText = "GRID POS";
+                if (lExtra) lExtra.innerText = "STATUS";
+                if (angleEl) angleEl.innerText = `(${gameState.gridPlayerX}, ${gameState.gridPlayerY})`;
+                if (blocksEl) blocksEl.innerText = "ALIVE";
+            } else {
+                if (lScore) lScore.innerText = "STACK SCORE";
+                if (lSecondary) lSecondary.innerText = "TILT ANGLE";
+                if (lExtra) lExtra.innerText = "BLOCKS";
+                if (angleEl) angleEl.innerText = (gameState.poleAngle * (180 / Math.PI)).toFixed(1) + '°';
+                if (blocksEl) blocksEl.innerText = gameState.blocks.length;
+            }
+        }
+
+        // PHASE 1: Static Balance + Math Multiple of 3 Task
+        function updatePhase1() {
+            updateBaseBalancePhysics();
+
+            const now = Date.now();
+            const clapOverlay = document.getElementById('clapOverlay');
+
+            if (now > gameState.mathNextPromptTime) {
+                gameState.mathNum = Math.floor(Math.random() * 25) + 1;
+                gameState.mathIsMultiple3 = (gameState.mathNum % 3 === 0);
+                gameState.clapSuccess = false;
+                gameState.mathNextPromptTime = now + 3500;
+
+                if (gameState.mathIsMultiple3 && clapOverlay) {
+                    clapOverlay.classList.remove('hidden');
+                } else if (clapOverlay) {
+                    clapOverlay.classList.add('hidden');
+                }
+            }
+        }
+
+        // PHASE 2: Gravity Meteor Defense
+        function updatePhase2() {
+            if (isLeftPressed) gameState.steveX -= 6;
+            if (isRightPressed) gameState.steveX += 6;
+            if (isDragging) gameState.steveX += (targetSteveX - gameState.steveX) * 0.22;
+
+            gameState.steveX = Math.max(45, Math.min(CANVAS_WIDTH - 45, gameState.steveX));
+
+            if (Math.random() < 0.04) {
+                gameState.meteors.push({
+                    x: Math.random() * (CANVAS_WIDTH - 40) + 20,
+                    y: -20,
+                    speed: 2 + Math.random() * 3,
+                    radius: 12 + Math.random() * 8
+                });
+            }
+
+            const shieldX = gameState.steveX;
+            const shieldY = CANVAS_HEIGHT - 80;
+            const shieldRadius = 50;
+
+            for (let i = gameState.meteors.length - 1; i >= 0; i--) {
+                const m = gameState.meteors[i];
+                m.y += m.speed;
+
+                const dist = Math.hypot(m.x - shieldX, m.y - shieldY);
+                if (dist < shieldRadius + m.radius) {
+                    gameState.score += 20;
+                    playCatchSound(false);
+                    gameState.meteors.splice(i, 1);
+                    continue;
+                }
+
+                if (m.y > CANVAS_HEIGHT - 30) {
+                    gameState.health -= 10;
+                    playCatchSound(true);
+                    gameState.meteors.splice(i, 1);
+                    if (gameState.health <= 0) gameOver();
+                }
+            }
+        }
+
+        // PHASE 3: 8x8 Quantum Matrix Leap
+        function updatePhase3() {
+            if (isLeftPressed) { gameState.gridPlayerX = Math.max(0, gameState.gridPlayerX - 1); isLeftPressed = false; }
+            if (isRightPressed) { gameState.gridPlayerX = Math.min(7, gameState.gridPlayerX + 1); isRightPressed = false; }
+
+            if (gameState.quantumCubes.length < 3 && Math.random() < 0.05) {
+                gameState.quantumCubes.push({
+                    x: Math.floor(Math.random() * 8),
+                    y: Math.floor(Math.random() * 8)
+                });
+            }
+
+            for (let i = gameState.quantumCubes.length - 1; i >= 0; i--) {
+                const c = gameState.quantumCubes[i];
+                if (c.x === gameState.gridPlayerX && c.y === gameState.gridPlayerY) {
+                    gameState.score += 50;
+                    playCatchSound(false);
+                    gameState.quantumCubes.splice(i, 1);
+                }
+            }
+
+            if (Math.random() < 0.03) {
+                gameState.collapsingTiles.push({
+                    x: Math.floor(Math.random() * 8),
+                    y: Math.floor(Math.random() * 8),
+                    timer: 60
+                });
+            }
+
+            for (let i = gameState.collapsingTiles.length - 1; i >= 0; i--) {
+                const tile = gameState.collapsingTiles[i];
+                tile.timer--;
+                if (tile.timer < 0) {
+                    if (tile.x === gameState.gridPlayerX && tile.y === gameState.gridPlayerY) {
+                        gameOver();
+                        return;
+                    }
+                    gameState.collapsingTiles.splice(i, 1);
+                }
+            }
+        }
+
+        // PHASE 4: Classic Block Stacking (Original)
+        function updatePhase4() {
+            updateBaseBalancePhysics();
+
+            const now = Date.now();
+            const spawnInterval = Math.max(1300, 2300 - gameState.blocks.length * 50);
+            if (now - gameState.lastSpawn > spawnInterval) {
+                spawnFallingBlock();
+                gameState.lastSpawn = now;
+            }
+
+            const poleTop = getPoleTopPos();
+            for (let i = gameState.fallingBlocks.length - 1; i >= 0; i--) {
+                const fb = gameState.fallingBlocks[i];
+                fb.y += fb.speed;
+
+                const dist = Math.hypot(fb.x - poleTop.x, fb.y - poleTop.y);
+                if (dist < 36) {
+                    gameState.blocks.push(fb.type);
+                    gameState.score += fb.type.score;
+                    playCatchSound(fb.type.explosive);
+                    if (fb.type.explosive) gameState.poleAngVel += (Math.random() > 0.5 ? 1 : -1) * 0.04;
+                    else gameState.poleAngVel *= 0.7;
+                    gameState.fallingBlocks.splice(i, 1);
+                    continue;
+                }
+
+                if (fb.y > CANVAS_HEIGHT + 40) gameState.fallingBlocks.splice(i, 1);
+            }
+        }
+
+        function updateBaseBalancePhysics() {
+            if (isLeftPressed) gameState.steveVx -= 0.85;
+            if (isRightPressed) gameState.steveVx += 0.85;
+
+            if (isDragging) {
+                gameState.steveX += (targetSteveX - gameState.steveX) * 0.22;
+                gameState.steveVx = (targetSteveX - gameState.steveX) * 0.08;
+            } else {
+                gameState.steveX += gameState.steveVx;
+                gameState.steveVx *= 0.88;
+            }
+
+            if (gameState.steveX < 45) { gameState.steveX = 45; gameState.steveVx = 0; }
+            if (gameState.steveX > CANVAS_WIDTH - 45) { gameState.steveX = CANVAS_WIDTH - 45; gameState.steveVx = 0; }
+
+            const stackHeightFactor = 1 + (gameState.blocks.length * 0.04);
+            const angAccGravity = Math.sin(gameState.poleAngle) * GRAVITY * stackHeightFactor;
+            const angAccInertia = -gameState.steveVx * 0.0004 / stackHeightFactor;
+
+            gameState.poleAngVel += angAccGravity + angAccInertia;
+            gameState.poleAngVel *= 0.94;
+            gameState.poleAngle += gameState.poleAngVel;
+
+            syncStateToRoom();
+
+            if (Math.abs(gameState.poleAngle) > 1.134) {
+                gameOver();
+            }
+        }
+
+        function drawCanvas() {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            if (currentPhase === 3) {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+                const tileSize = 55;
+                const offsetX = (CANVAS_WIDTH - tileSize * 8) / 2;
+                const offsetY = (CANVAS_HEIGHT - tileSize * 8) / 2;
+
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 2;
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        ctx.strokeRect(offsetX + c * tileSize, offsetY + r * tileSize, tileSize, tileSize);
+                    }
+                }
+
+                gameState.collapsingTiles.forEach(t => {
+                    ctx.fillStyle = 'rgba(239, 68, 68, 0.6)';
+                    ctx.fillRect(offsetX + t.x * tileSize + 2, offsetY + t.y * tileSize + 2, tileSize - 4, tileSize - 4);
+                });
+
+                gameState.quantumCubes.forEach(q => {
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillRect(offsetX + q.x * tileSize + 12, offsetY + q.y * tileSize + 12, tileSize - 24, tileSize - 24);
+                });
+
+                const px = offsetX + gameState.gridPlayerX * tileSize + tileSize / 2;
+                const py = offsetY + gameState.gridPlayerY * tileSize + tileSize / 2;
+                ctx.fillStyle = '#4ade80';
+                ctx.beginPath();
+                ctx.arc(px, py, 16, 0, Math.PI * 2);
+                ctx.fill();
+                return;
+            }
+
+            ctx.fillStyle = currentPhase === 2 ? '#0b0f19' : '#70b5ff';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            ctx.fillStyle = '#4a8522';
+            ctx.fillRect(0, CANVAS_HEIGHT - 40, CANVAS_WIDTH, 40);
+            ctx.fillStyle = '#7bcc39';
+            ctx.fillRect(0, CANVAS_HEIGHT - 40, CANVAS_WIDTH, 8);
+
+            if (currentPhase === 2) {
+                const shieldX = gameState.steveX;
+                const shieldY = CANVAS_HEIGHT - 80;
+
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+                ctx.beginPath(); ctx.arc(shieldX, shieldY, 50, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3; ctx.stroke();
+
+                gameState.meteors.forEach(m => {
+                    ctx.fillStyle = '#ef4444';
+                    ctx.beginPath(); ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2); ctx.fill();
+                });
+
+                drawSteve(gameState.steveX, CANVAS_HEIGHT - 40);
+                return;
+            }
+
+            if (currentPhase === 4) {
+                gameState.fallingBlocks.forEach(fb => drawBlock(fb.x, fb.y, fb.type, 0, 28));
+            }
+
+            const pivotX = gameState.steveX;
+            const pivotY = CANVAS_HEIGHT - 110;
+
+            drawSteve(pivotX, CANVAS_HEIGHT - 40);
+
+            ctx.save();
+            ctx.translate(pivotX, pivotY);
+            ctx.rotate(gameState.poleAngle);
+
+            ctx.fillStyle = '#5c4033';
+            ctx.fillRect(-4, -40, 8, 40);
+
+            let currY = -40;
+            for (let i = 0; i < gameState.blocks.length; i++) {
+                drawBlock(0, currY - 14, gameState.blocks[i], 0, 28);
+                currY -= 28;
+            }
+            ctx.restore();
+
+            if (currentPhase === 1 && gameState.mathNum > 0) {
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+                ctx.fillRect(CANVAS_WIDTH / 2 - 110, 80, 220, 60);
+                ctx.strokeStyle = '#facc15'; ctx.lineWidth = 3;
+                ctx.strokeRect(CANVAS_WIDTH / 2 - 110, 80, 220, 60);
+
+                ctx.fillStyle = '#facc15';
+                ctx.font = '20px "Press Start 2P", cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText(`NUMBER: ${gameState.mathNum}`, CANVAS_WIDTH / 2, 118);
+            }
+        }
+
+        // Auto initialization on DOM ready
+        window.addEventListener('DOMContentLoaded', () => {
+            initBalanceGame();
+            setupControls();
+        });
+    </script>
+</body>
+</html>
